@@ -1,12 +1,14 @@
-# Text Analyzer
+# Text Analyzer GUI (Python)
 
-Ein simples Python-Tool zur Textanalyse:
-- Wortanzahl
+Ein einfaches GUI-Tool zur Textanalyse mit folgenden Funktionen:
 - Zeichenanzahl
-- Häufigste Wörter
+- Wortanzahl
+- Die 5 häufigsten Wörter
 
-## Nutzung
+## Voraussetzungen
+- Python 3.x
 
+## Ausführen
 ```bash
-python analyzer.py example.txt
+python main.py
 ```
