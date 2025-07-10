@@ -21,9 +21,9 @@ def analyze_text():
 # Hauptfenster
 root = tk.Tk()
 root.title("📝 Text Analyzer")
-root.geometry("800x600")         # Startgröße
-root.minsize(800, 600)           # Mindestgröße
-root.configure(bg="#2d2d2d")     # Dark-Theme-Hintergrund
+root.geometry("800x600")
+root.minsize(800, 600)
+root.configure(bg="#2d2d2d")
 
 # Fonts & Farben
 FONT_HEADER = ("Segoe UI", 12, "bold")
@@ -35,37 +35,37 @@ COLOR_RESULT = "#d4f4dd"
 COLOR_BUTTON = "#4ecdc4"
 COLOR_BUTTON_TEXT = "#1e1e1e"
 
+# Hauptlayout (Grid mit 3 Zeilen)
+root.grid_rowconfigure(2, weight=1)  # Ergebniszeile bekommt flexiblen Platz
+root.grid_columnconfigure(0, weight=1)
+
 # Eingabeaufforderung
 label = tk.Label(root, text="Gib deinen Text ein:", fg=COLOR_ACCENT, bg=COLOR_BG, font=FONT_HEADER)
-label.pack(pady=(15, 5))
+label.grid(row=0, column=0, pady=(15, 5), sticky="n")
 
 # Textfeld
 text_area = scrolledtext.ScrolledText(
-    root, wrap=tk.WORD, width=80, height=15, font=FONT_TEXT,
+    root, wrap=tk.WORD, width=80, height=12, font=FONT_TEXT,
     bg="#1e1e1e", fg=COLOR_TEXT, insertbackground=COLOR_ACCENT,
     borderwidth=0, relief=tk.FLAT
 )
-text_area.pack(padx=15, pady=5)
+text_area.grid(row=1, column=0, padx=15, pady=5, sticky="n")
 
-# Analyse-Button
+# Button
 analyze_button = tk.Button(
     root, text="🔍 Analysieren", command=analyze_text,
     bg=COLOR_BUTTON, fg=COLOR_BUTTON_TEXT,
     activebackground="#76e8e4", font=FONT_HEADER,
     relief=tk.FLAT, padx=10, pady=5, cursor="hand2"
 )
-analyze_button.pack(pady=10)
+analyze_button.grid(row=2, column=0, pady=(10, 0), sticky="n")
 
-# Ergebnisanzeige zentriert im Frame
+# Ergebnisanzeige zentriert
 result_var = tk.StringVar()
-result_frame = tk.Frame(root, bg=COLOR_BG)
-result_frame.pack(fill="both", expand=True)
-
 result_label = tk.Label(
-    result_frame, textvariable=result_var, justify="center",
+    root, textvariable=result_var, justify="center",
     fg=COLOR_RESULT, bg=COLOR_BG, font=FONT_TEXT
 )
-result_label.pack(expand=True)
+result_label.grid(row=3, column=0, pady=(20, 10), sticky="n")
 
-# Start
 root.mainloop()
