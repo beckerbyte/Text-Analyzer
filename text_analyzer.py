@@ -1,17 +1,17 @@
 import tkinter as tk
-from tkinter import scrolledtext, filedialog, messagebox, Toplevel, PhotoImage, ttk
+from tkinter import scrolledtext, filedialog, messagebox, Toplevel, ttk
 from collections import Counter
 import re
 import os
+from PIL import Image, ImageTk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# ---------------------- Textanalyse-Funktionen ---------------------- #
-
+# ---------------------- Analysefunktionen ---------------------- #
 def analyze_text():
     text = text_area.get("1.0", tk.END).strip()
     if not text:
-        result_var.set("⚠️ Kein Text vorhanden.")
+        display_result("⚠️ Kein Text vorhanden.")
         return
 
     char_count = len(text)
@@ -28,19 +28,19 @@ def analyze_text():
     result += f"• Zeichenanzahl: {char_count}\n"
     result += f"• Wortanzahl: {word_count}\n"
     result += f"• Satzanzahl: {sentence_count}\n"
-    result += f"• ⌀ Wortlänge: {avg_word_len:.2f} Zeichen\n"
+    result += f"• Ø Wortlänge: {avg_word_len:.2f} Zeichen\n"
     result += f"• Lesbarkeit (Flesch): {flesch_score:.2f}\n"
     result += "• Häufigste Wörter:\n"
     for word, freq in common_words:
         result += f"   → {word}: {freq}\n"
 
-    result_var.set(result)
+    display_result(result)
 
 def count_syllables(word):
     return len(re.findall(r'[aeiouyäöü]+', word.lower()))
 
 def export_result():
-    text = result_var.get()
+    text = result_area.get("1.0", tk.END).strip()
     if not text:
         messagebox.showwarning("Fehler", "Keine Analyse zum Exportieren.")
         return
@@ -73,9 +73,8 @@ def show_word_histogram():
     canvas.draw()
 
 # ---------------------- Haupt-GUI ---------------------- #
-
 def start_main_gui():
-    global root, text_area, result_var
+    global root, text_area, result_area
 
     root = tk.Tk()
     root.title("📝 Text Analyzer Pro")
@@ -83,10 +82,10 @@ def start_main_gui():
     root.configure(bg="#1e1e1e")
 
     try:
-        logo_img = PhotoImage(file=os.path.join(os.path.dirname(__file__), "logo.png"))
+        logo_img = ImageTk.PhotoImage(Image.open("logo.png").resize((32, 32)))
         root.iconphoto(False, logo_img)
-    except Exception as e:
-        print(f"⚠️ Fenster-Logo konnte nicht geladen werden: {e}")
+    except:
+        pass
 
     FONT_HEADER = ("Segoe UI", 13, "bold")
     FONT_TEXT = ("Consolas", 11)
@@ -122,15 +121,26 @@ def start_main_gui():
               bg=COLOR_BUTTON, fg=COLOR_BUTTON_TEXT, font=FONT_HEADER,
               relief=tk.FLAT, padx=12, pady=5, cursor="hand2").grid(row=0, column=2, padx=5)
 
-    result_var = tk.StringVar()
-    result_label = tk.Label(root, textvariable=result_var, justify="left",
-                            fg=COLOR_RESULT, bg=COLOR_BG, font=FONT_TEXT, anchor="w")
-    result_label.pack(padx=20, pady=20, fill="both")
+    # Ergebnisbereich (lesbar, eingebettet)
+    result_frame = tk.Frame(root, bg="#1e1e1e", bd=1)
+    result_frame.pack(padx=30, pady=(10, 30), fill="both", expand=True)
+
+    result_area = tk.Text(
+        result_frame, wrap=tk.WORD, font=FONT_TEXT, height=10,
+        bg="#1a1a1a", fg=COLOR_RESULT, insertbackground=COLOR_ACCENT,
+        relief=tk.FLAT, borderwidth=10, spacing1=4, spacing3=4, state="disabled"
+    )
+    result_area.pack(fill="both", expand=True)
 
     root.mainloop()
 
-# ---------------------- Splash Screen ---------------------- #
+def display_result(text):
+    result_area.config(state="normal")
+    result_area.delete("1.0", tk.END)
+    result_area.insert(tk.END, text)
+    result_area.config(state="disabled")
 
+# ---------------------- Splash Screen ---------------------- #
 def show_splash_and_start():
     splash = tk.Tk()
     splash.overrideredirect(True)
@@ -138,21 +148,21 @@ def show_splash_and_start():
 
     screen_width = splash.winfo_screenwidth()
     screen_height = splash.winfo_screenheight()
-    width, height = 320, 320
+    width, height = 300, 300
     x = (screen_width // 2) - (width // 2)
     y = (screen_height // 2) - (height // 2)
     splash.geometry(f"{width}x{height}+{x}+{y}")
 
     try:
-        logo_path = os.path.join(os.path.dirname(__file__), "logo.png")
-        logo_img = PhotoImage(file=logo_path)
+        pil_img = Image.open("logo.png").resize((128, 128), Image.LANCZOS)
+        logo_img = ImageTk.PhotoImage(pil_img)
         logo_label = tk.Label(splash, image=logo_img, bg="#1e1e1e")
         logo_label.image = logo_img
         logo_label.pack(pady=(40, 10))
     except Exception as e:
         print(f"⚠️ Splash-Logo konnte nicht geladen werden: {e}")
 
-    loading_label = tk.Label(splash, text="Wird geladen...", fg="#4ecdc4", bg="#1e1e1e", font=("Segoe UI", 10, "italic"))
+    loading_label = tk.Label(splash, text="Lade Text Analyzer Pro ...", fg="#4ecdc4", bg="#1e1e1e", font=("Segoe UI", 10, "italic"))
     loading_label.pack()
 
     progress = ttk.Progressbar(splash, orient=tk.HORIZONTAL, mode='indeterminate', length=180)
@@ -167,7 +177,7 @@ def show_splash_and_start():
     splash.after(2000, close_splash)
     splash.mainloop()
 
-# ---------------------- Main Entry Point ---------------------- #
-
+# ---------------------- Entry Point ---------------------- #
 if __name__ == "__main__":
     show_splash_and_start()
+
